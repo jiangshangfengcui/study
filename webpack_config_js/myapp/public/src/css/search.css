@@ -1,0 +1,361 @@
+/**** Icon-font ****/
+
+@font-face {
+  font-family: 'icomoon';
+  src: url('//static.i360mall.com/h5/static/7405d3d57ce59f99.eot');
+  src: url('//static.i360mall.com/h5/static/7405d3d57ce59f99.eot') format('embedded-opentype'),
+  url('//static.i360mall.com/h5/static/93ffa7c490baf29c.ttf') format('truetype'),
+  url('//static.i360mall.com/h5/static/7963e640b76d9c72.woff') format('woff'),
+  url('//static.i360mall.com/h5/static/493f052c299f5a4e.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"],
+[class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.rows{
+  display: table-row;
+}
+
+.icon-back:before {
+  content: "\e900";
+}
+
+.icon-search:before {
+  content: "\e901";
+}
+
+/**** Main style ****/
+
+.fixsearch {
+  height: 4.2rem;
+  border-bottom: .1rem solid #DDD;
+  background: #F7F7F7;
+}
+
+.fixsearch .bar {
+  width: 100%;
+  border-bottom: .1rem solid #DDD;
+  background: #F7F7F7;
+  padding: 0 .6rem;
+  -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+  font-size: 0;
+}
+
+.fixsearch .bar.active {
+  position: fixed;
+  z-index: 113;
+  top: 0;
+  left: 0;
+  padding: 0 4rem;
+}
+
+.fixsearch .bar button {
+  font-size: 1.4rem;
+  display: none;
+  flex: none;
+  width: 4rem;
+  padding: 0;
+  color: #464646;
+  border: none;
+  background: none;
+  margin-top: 1.5rem;
+  vertical-align: top;
+  line-height: 1;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.fixsearch .bar .icon-back.js-btn-back {
+  margin-top: 0;
+}
+
+.fixsearch .bar .icon-back {
+  left: 0;
+}
+
+.fixsearch .bar .icon-back::before {
+  font-size: 130%;
+  color: #858585;
+  line-height: 4.4rem;
+}
+
+.fixsearch .bar.active button {
+  display: inline-block;
+}
+
+.fixsearch .bar input {
+  font-size: 1.4rem;
+  width: 100%;
+  height: 3rem;
+  margin: .6rem 0;
+  padding: 0 1rem;
+  border: .1rem solid #E8E8E8;
+  -webkit-border-radius: .4rem;
+     -moz-border-radius: .4rem;
+          border-radius: .4rem;
+  background: #FFF;
+  -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+}
+
+.fixsearch .bar.active input {
+  margin: .6rem 0;
+}
+
+.fixsearch .fullscreen {
+  position: fixed;
+  z-index: 112;
+  top: 0;
+  left: 0;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding-top: 4.3rem;
+  background: #F0F0F0;
+}
+
+.fixsearch .fixsearch-suggester ul {
+  margin: 1.3rem;
+}
+
+.fixsearch .fixsearch-suggester .suggest {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  float: left;
+  margin: .5rem;
+  padding: .3rem 1.2rem;
+  color: #989898;
+  border: .1rem solid #DCDCDC;
+  -webkit-border-radius: 99rem;
+     -moz-border-radius: 99rem;
+          border-radius: 99rem;
+  background: #FFF;
+}
+
+.fixsearch .fixsearch-predictor ul {
+  margin-top: -.1rem;
+  background: #FFF;
+}
+
+.fixsearch .fixsearch-predictor .prediction {
+  font-size: 1.6rem;
+  line-height: 4.8rem;
+  margin-left: 1.6rem;
+  border-top: .1rem solid #EFEFEF;
+}
+
+.fixsearch .fixsearch-predictor .prediction::before {
+  margin-right: 1.4rem;
+  color: #C6C6C6;
+}
+
+.fixsearch .fixsearch-predictor .prediction strong {
+  color: #FA5D42;
+}
+
+.fixsearch .fixsearch-predictor .prediction em {
+  font-size: 1.4rem;
+  float: right;
+  margin-right: 1.2rem;
+  color: #959595;
+}
+
+.search-result {
+  background: #F0F0F0;
+}
+
+.search-result .toolbar {
+  height: 4.2rem;
+  background: #FFF;
+  white-space: nowrap;
+  font-size: 0;
+  overflow: hidden;
+}
+
+.search-result .toolbar button {
+  font-size: 1.4rem;
+  color: #555;
+  border: 0;
+  border-left: .1rem solid #EBEBEB;
+  background: #FFF;
+  width: 33.333%;
+  height: 100%;
+  -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+}
+
+.search-result .toolbar button:first-child {
+  border: 0;
+}
+
+.search-result .toolbar button.active {
+  color: #23AC38;
+}
+
+.search-result .toolbar button[data-type=price] i {
+  display: inline-block;
+  overflow: hidden;
+  width: 1em;
+  height: 1em;
+  margin-left: .3em;
+  vertical-align: middle;
+  background: url('//static.i360mall.com/h5/images/price.png') left top / auto 1em no-repeat;
+}
+
+.search-result .toolbar button[data-type=price][data-value=asc] i {
+  background-position: right top;
+}
+
+.search-result .toolbar button[data-type=price][data-value=desc] i {
+  background-position: center top;
+}
+
+.search-result .toolbar button[data-type=availability] i {
+  display: inline-block;
+  overflow: hidden;
+  width: 1.3em;
+  height: 1.3em;
+  margin-right: .3em;
+  vertical-align: middle;
+  background: url('//static.i360mall.com/h5/images/checkbox.png') left top / auto 1.3em no-repeat;
+}
+
+.search-result .toolbar button[data-type=availability][data-value='1'] i {
+  background-position: right top;
+}
+
+.search-result .empty-prompt {
+  font-size: 1.3rem;
+  margin: 0 1rem 1rem;
+  padding-top: 1em;
+  text-align: center;
+  border-bottom: .1rem solid #EAEAEA;
+}
+
+.search-result .empty-prompt .prompt {
+  display: block;
+  padding-top: 7em;
+  color: #BDBDBD;
+  background: url('//static.i360mall.com/h5/images/anzai.png') center top / auto 6em no-repeat;
+}
+
+.search-result .empty-prompt .recommendation {
+  position: relative;
+  bottom: -.5em;
+  padding: 0 .8rem;
+  background: #F0F0F0;
+}
+
+.search-result .grid {
+  padding-top: .5rem;
+  background: #F0F0F0;
+  font-size: 0;
+  display: table;
+  border-collapse: collapse;
+}
+
+.search-result .grid .item {
+  width: 50%;
+  display: inline-block;
+  vertical-align: top;
+  -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+  position: relative;
+  display: table-cell;
+  background: #fff;
+  border: 0.5rem solid #f0f0f0;
+  padding: 0.5rem;
+}
+
+.search-result .grid a {
+  display: block;
+  text-align: center;
+  background: #FFF;
+}
+
+.search-result .grid a img {
+  display: block;
+  width: auto;
+  height: 10rem;
+  margin: 2rem auto;
+}
+
+.search-result .grid a span,
+.search-result .grid a em,
+.search-result .grid a strong {
+  font-size: 1.3rem;
+  display: block;
+}
+
+.search-result .grid a span {
+  color: #555;
+  word-break:break-all;
+}
+
+.search-result .grid a em {
+  line-height: 2;
+  color: #F55;
+}
+
+.search-result .grid a em::before {
+  content: '';
+}
+
+.search-result .grid a strong {
+  font-size: 1rem;
+  width: 4em;
+  padding: .2rem .5rem;
+  color: #FFF;
+  background: #CCC;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: -2.125rem;
+  -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+}
+
+.search-result .grid .col1 a strong {
+  margin-left: -1.875rem;
+}
+
+/*返回顶部*/
+.gotop {
+    width: 3.4rem;
+    height: 3.4rem;
+    display: inline-block;
+    background: url(//static.i360mall.com/h5/images/top.png) no-repeat;
+    background-size: 3.4rem 3.4rem;
+    background-position: 0 0;
+    position: fixed;
+    right: 0;
+    bottom: 6rem;
+}
+#back-to-top {
+    display: none;
+}
+
+
+/*上拉加载增加样式*/
+.search-result {
+  padding-bottom: 5.5rem;
+}
+.search-result .grid ~ .nomore {
+  display: none;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 5.5rem;
+}

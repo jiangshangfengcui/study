@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<h3>Node.js是什么</h3>
+<br/>Node让你可以用javascript编写服务器端程序，让javascript脱离web浏览器的限制，像C#、JAVA、Python等语言一样在服务器端运行，这也让一些熟悉Javascript的前端开发人员进军到服务器端开发提供了一个便利的途径。  Node是基于Google的V8引擎封装的，并提供了一些编写服务器程序的常用接口，例如文件流的处理。Node的目的是提供一种简单的途径来编写高性能的网络程序。
+<br/>(注：1、本文基于Node.js V0.3.6； 2、本文假设你了解JavaScript； 3、本文假设你了解MVC框架；4、本文示例源代码：<a href=“http://files.cnblogs.com/QLeelulu/learnNode.zip”>learnNode.zip</a>)
+<br/><h3>Node.js的性能</h3>
+<br/>hello world 测试：
+<br/><a href=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280205575971.jpg”><img src=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280205599517.jpg” border=“0” alt=“clip_image002” width=“531” height=“407” /></a>
+<br/>
+<br/>300并发请求，返回不同大小的内容：
+<br/><a href=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206002713.jpg”><img src=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206022322.jpg” border=“0” alt=“clip_image004” width=“519” height=“414” /></a>
+<br/>为什么node有如此高的性能？看node的特性。
+<br/><h3>Node.js的特性</h3>
+<br/><blockquote><strong>1. 单线程</strong>
+<br/><strong>2. 非阻塞IO</strong>
+<br/><strong>3. Google V8</strong>
+<br/><strong>4. 事件驱动</strong></blockquote>
+<br/>更详细的了解node请看淘宝UED博客上的关于node.js的一个幻灯片：<a href=“http://www.slideshare.net/lijing00333/node-js”>http://www.slideshare.net/lijing00333/node-js</a>
+<br/><h3>你好，世界</h3>
+<br/>这，当然是俗套的Hello World啦（hello_world.js）：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>var http = require(‘http’);
+<br/>http.createServer(function (req, res) {
+<br/>    res.writeHead(200, {‘Content-Type’: ‘text/plain’});
+<br/>    res.end(‘Hello World\n’);
+<br/>}).listen(8124, “127.0.0.1”);
+<br/>console.log(‘Server running at http://127.0.0.1:8124/’);</pre>
+<br/></div>
+<br/>require类似于C#的using、Python的import，用于导入模块（module）。node使用的是CommonJS的模块系统。http.createServer  的参数为一个函数，每当有新的请求进来的时候，就会触发这个函数。最后就是绑定要监听的端口。
+<br/><h2>怎么运行？</h2>
+<br/>当然，是先安装node.js啦。到<a href=“http://nodejs.org/”>http://nodejs.org/</a>下载并编译，支持Linux、Mac，也支持windows下的Cygwin。具体的安装说明见：<a href=“http://howtonode.org/how-to-install-nodejs”>http://howtonode.org/how-to-install-nodejs</a> 装好node后，就可以运行我们的hello world了：
+<br/><div>
+<br/><pre escaped=“true”>$ node hello_world.js
+<br/>Server running at http://127.0.0.1:8124/</pre>
+<br/><a href=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206035486.jpg”><img src=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206042586.jpg” border=“0” alt=“clip_image006” width=“265” height=“89” /></a>
+<br/><h3>编程习惯的改变？</h3>
+<br/>我们来写一个读取文件内容的脚本：
+<br/><pre escaped=“true” lang=“javascript”>//output_me.js
+<br/>var fs = require(‘fs’), fileContent = ‘nothing’;
+<br/>fs.readFile(__filename, “utf-8”, function(err, file) {
+<br/>    if(err) {
+<br/>        console.log(err);
+<br/>        return;
+<br/>    }
+<br/>    fileContent = file;
+<br/>    console.log(‘end readfile \n’);
+<br/>});
+<br/>console.log(‘doSomethingWithFile: ‘+ fileContent +’\n’);</pre>
+<br/>这个脚本读取当前文件的内容并输出。__filename是node的一个全局变量，值为当前文件的绝对路径。我们执行这个脚本看一下：
+<br/><a href=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206057636.jpg”><img src=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206056830.jpg” border=“0” alt=“clip_image008” width=“254” height=“98” /></a>
+<br/>
+<br/>有没发现结果不对呢？打印的fileContent并不是读取到的文件内容，而是初始化的时候赋值的nothing，并且‘end  readfile’最后才打印出来。前面我们提到node的一个特性就是非阻塞IO，而readFile就是异步非阻塞读取文件内容的，所以后面的代码并不会等到文件内容读取完了再执行。请谨记node的异步非阻塞IO特性。所以我们需要将上面的代码修改为如下就能正常工作了：
+<br/><pre escaped=“true” lang=“javascript”>//output_me.js
+<br/>var fs = require(‘fs’), fileContent = ‘nothing’;
+<br/>fs.readFile(__filename, “utf-8”, function(err, file) {
+<br/>    if(err) {
+<br/>        console.log(err);
+<br/>        return;
+<br/>    }
+<br/>    fileContent = file;
+<br/>    //对于file的处理放到回调函数这里处理
+<br/>    console.log(‘doSomethingWithFile: ‘+ fileContent +’\n’);
+<br/>});
+<br/>console.log(‘我们先去喝杯茶\n’);</pre>
+<br/><h3><strong>写个Web MVC框架试试</strong></h3>
+<br/>下面我们用node来写一个小玩具：一个Web MVC框架。这个小玩具我称它为n2Mvc，它的代码结构看起来大概如下：
+<br/><a href=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206066372.jpg”><img src=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206072883.jpg” border=“0” alt=“clip_image010” width=“171” height=“434” /></a>
+<br/>
+<br/>和hello world一样，我们需要一个http的服务器来处理所有进来的请求：
+<br/><pre escaped=“true” lang=“javascript”>var http = require(‘http’),
+<br/>querystring = require(“querystring”);
+<br/>exports.runServer = function(port){
+<br/>    port = port || 8080;
+<br/>    var server = http.createServer(function(req, res){
+<br/>        var _postData = ‘’;
+<br/>        //on用于添加一个监听函数到一个特定的事件
+<br/>        req.on(‘data’, function(chunk)
+<br/>        {
+<br/>            _postData += chunk;
+<br/>        })
+<br/>        .on(‘end’, function()
+<br/>        {
+<br/>            req.post = querystring.parse(_postData);
+<br/>            handlerRequest(req, res);
+<br/>        });
+<br/>    }).listen(port);
+<br/>    console.log(‘Server running at http://127.0.0.1:’+ port +’/’);
+<br/>};</pre>
+<br/>这里定义了一个runServer的方法来启动我们的n2Mvc的服务器。有没注意到runServer前面有个exports？这个exports相当于C#中的publish，在用require导入这个模块的时候，runServer可以被访问到。我们写一个脚本来演示下node的模块导入系统：
+<br/><pre escaped=“true” lang=“javascript”>//moduleExample.js
+<br/>var myPrivate = ‘艳照，藏着’;
+<br/>exports.myPublish = ‘冠西的相机’;
+<br/>this.myPublish2 = ‘this也可以哦’;
+<br/>console.log(‘moduleExample.js loaded \n’);</pre>
+<br/>执行结果：
+<br/><a href=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206089079.jpg”><img src=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206099211.jpg” border=“0” alt=“clip_image002[9]” width=“376” height=“225” /></a>
+<br/>
+<br/>从结果中我们可以看出exports和this下的变量在外部导入模块后，可以被外部访问到，而var定义的变量只能在脚本内部访问。  从结果我们还可以看出，第二次require导入moduleExample模块的时候，并没有打印“moduleExample.js  loaded”，因为require导入模块的时候，会先从require.cache 中检查模块是否已经加载，如果没有加载，才会从硬盘中查找模块脚本并加载。  require支持相对路径查找模块，例如上面代码中require(’./moduleExample’)中的“./”就代表在当前目录下查找。如果不是相当路径，例如  require(‘http’)，node则会到require.paths中去查找，例如我的系统require.paths为：
+<br/><a href=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206105689.jpg”><img src=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206117457.jpg” border=“0” alt=“clip_image004[7]” width=“304” height=“104” /></a>
+<br/>
+<br/>当require(‘http’)的时候，node的查找路径为：
+<br/><div>
+<br/><pre escaped=“true”>1、/home/qleelulu/.node_modules/http
+<br/>2、/home/qleelulu/.node_modules/http.js
+<br/>3、/home/qleelulu/.node_modules/http.node
+<br/>4、/home/qleelulu/.node_modules/http/index.js
+<br/>5、/home/qleelulu/.node_modules/http/index.node
+<br/>6、/home/qleelulu/.node_libraries/http
+<br/>7、/home/qleelulu/.node_libraries/http.js
+<br/>8、参考前面</pre>
+<br/></div>
+<br/>再看回前面的代码，http.createServer中的回调函数中的request注册了两个事件，前面提到过node的一个特点是事件驱动的，所以这种事件绑定你会到处看到（想想jQuery的事件绑定？例如$(‘a’).click(fn)）。关于node的事件我们在后面再细说。request对象的data事件会在接收客户端post上来的数据时候触发，而end事件则会在最后触发。所以我们在data事件里面处理接收到的数据（例如post过来的form表单数据），在end事件里面通过handlerRequest  函数来统一处理所有的请求并分发给相应的controller action处理。  handlerRequest的代码如下：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>var route = require(’./route’);
+<br/>var handlerRequest = function(req, res){
+<br/>    //通过route来获取controller和action信息
+<br/>    var actionInfo = route.getActionInfo(req.url, req.method);
+<br/>    //如果route中有匹配的action，则分发给对应的action
+<br/>    if(actionInfo.action){
+<br/>        //假设controller都放到当前目录的controllers目录里面，还记得require是怎么搜索module的么？
+<br/>        var controller = require(’./controllers/’+actionInfo.controller); // ./controllers/blog
+<br/>        if(controller[actionInfo.action]){
+<br/>            var ct = new controllerContext(req, res);
+<br/>            //动态调用，动态语言就是方便啊
+<br/>            //通过apply将controller的上下文对象传递给action
+<br/>            controller[actionInfo.action].apply(ct, actionInfo.args);
+<br/>        }else{
+<br/>            handler500(req, res, ‘Error: controller "’ + actionInfo.controller + ‘" without action "’ + actionInfo.action + ‘"’)
+<br/>        }
+<br/>    }else{
+<br/>        //如果route没有匹配到，则当作静态文件处理
+<br/>        staticFileServer(req, res);
+<br/>    }
+<br/>};</pre>
+<br/></div>
+<br/>这里导入来一个route模块，route根据请求的url等信息去获取获取controller和action的信息，如果获取到，则通过动态调用调用action方法，如果没有匹配的action信息，则作为静态文件处理。  下面是route模块的代码：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>var parseURL = require(‘url’).parse;
+<br/>//根据http请求的method来分别保存route规则
+<br/>var routes = {get:[], post:[], head:[], put:[], delete:[]};
+<br/>/**
+<br/>* 注册route规则
+<br/>* 示例：
+<br/>* route.map({
+<br/>*     method:‘post’,
+<br/>*     url: //blog/post/(\d+)/?$/i,
+<br/>*     controller: ‘blog’,
+<br/>*     action: ‘showBlogPost’
+<br/>* })
+<br/>/
+<br/>exports.map = function(dict){
+<br/>    if(dict && dict.url && dict.controller){
+<br/>        var method = dict.method ? dict.method.toLowerCase() : ‘get’;
+<br/>        routes[method].push({
+<br/>            u: dict.url, //url匹配正则
+<br/>            c: dict.controller,
+<br/>            a: dict.action || ‘index’
+<br/>        });
+<br/>    }
+<br/>};
+<br/>exports.getActionInfo = function(url, method){
+<br/>    var r = {controller:null, action:null, args:null},
+<br/>        method = method ? method.toLowerCase() : ‘get’,
+<br/>        // url: /blog/index?page=1 ,则pathname为: /blog/index
+<br/>        pathname = parseURL(url).pathname;
+<br/>    var m_routes = routes[method];
+<br/>    for(var i in m_routes){
+<br/>        //正则匹配
+<br/>        r.args = m_routes[i].u.exec(pathname);
+<br/>        if(r.args){
+<br/>            r.controller = m_routes[i].c;
+<br/>            r.action = m_routes[i].a;
+<br/>            r.args.shift(); //第一个值为匹配到的整个url，去掉
+<br/>            break;
+<br/>        }
+<br/>    }
+<br/>    //如果匹配到route，r大概是 {controller:‘blog’, action:‘index’, args:[‘1’]}
+<br/>    return r;
+<br/>};</pre>
+<br/></div>
+<br/>map方法用于注册路由规则，我们新建一个config.js的文件，来配置route规则：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>//config.js
+<br/>var route = require(’./route’);
+<br/>route.map({
+<br/>    method:‘get’,
+<br/>    url: //blog/?$/i,
+<br/>    controller: ‘blog’,
+<br/>    action: ‘index’
+<br/>});</pre>
+<br/></div>
+<br/>如果请求的url有匹配的route规则，则会返回controller和action信息。例如上面的route配置，当访问 /blog  这个url的时候，则会调用 ./controllers/blog.js 模块里面的index函数。  当调用action的时候，会传递controllerContext给acation：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>            var ct = new controllerContext(req, res);
+<br/>            //动态调用，动态语言就是方便啊
+<br/>            //通过apply将controller的上下文对象传递给action
+<br/>            controller[actionInfo.action].apply(ct, actionInfo.args);</pre>
+<br/></div>
+<br/>这里会通过apply将controllerContext作为action的this，并传递args作为action的参数来调用action。  ontrollerContext封装了一些action会用到的方法：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>//controller的上下文对象
+<br/>var controllerContext = function(req, res){
+<br/>this.req = req;
+<br/>this.res = res;
+<br/>this.handler404 = handler404;
+<br/>this.handler500 = handler500;
+<br/>};
+<br/>controllerContext.prototype.render = function(viewName, context){
+<br/>viewEngine.render(this.req, this.res, viewName, context);
+<br/>};
+<br/>controllerContext.prototype.renderJson = function(json){
+<br/>viewEngine.renderJson(this.req, this.res, json);
+<br/>};</pre>
+<br/></div>
+<br/>在action中处理完逻辑获取获取到用户需要的数据后，就要呈现给用户。这就需要viewEngine来处理了。ViewEngine的代码如下：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>var viewEngine = {
+<br/>    render: function(req, res, viewName, context){
+<br/>        var filename = path.join(__dirname, ‘views’, viewName);
+<br/>        try{
+<br/>            var output = Shotenjin.renderView(filename, context);
+<br/>        }catch(err){
+<br/>            handler500(req, res, err);
+<br/>            return;
+<br/>        }
+<br/>        res.writeHead(200, {‘Content-Type’: ‘text/html’});
+<br/>        res.end(output);
+<br/>    },
+<br/>    renderJson: function(res, json){
+<br/>        //TODO:
+<br/>    }
+<br/>};</pre>
+<br/></div>
+<br/>这里viewEngine主要负责模板解析。node有很多的可用的模块，模板解析模块也有一大堆，不过这里我们是要“玩”，所以模板解析系统我们这里使用<a href=“http://www.kuwata-lab.com/tenjin/jstenjin-users-guide.html” target="_blank">jstenjin</a>来稍作修改：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>//shotenjin.js 增加的代码
+<br/>//模板缓存，缓存解析后的模板
+<br/>Shotenjin.templateCatch = {};
+<br/>//读取模板内容
+<br/>//在模板中引用模板使用： {# …/layout.html #}
+<br/>Shotenjin.getTemplateStr = function(filename){
+<br/>    //console.log(‘get template:’ + filename);
+<br/>    var t = ‘’;
+<br/>    //这里使用的是同步读取
+<br/>    if(path.existsSync(filename)){
+<br/>        t = fs.readFileSync(filename, ‘utf-8’);
+<br/>    }else{
+<br/>        throw ‘View: ’ + filename + ’ not exists’;
+<br/>    }
+<br/>    t = t.replace(/{#[\s]([./\w-]+)[\s]*#}/ig, function(m, g1) {
+<br/>        var fp = path.join(filename, g1.trim())
+<br/>        return Shotenjin.getTemplateStr(fp);
+<br/>    });
+<br/>    return t;
+<br/>};
+<br/>Shotenjin.renderView = function(viewPath, context) {
+<br/>    var template = Shotenjin.templateCatch[viewPath];
+<br/>    if(!template){
+<br/>        var template_str = Shotenjin.getTemplateStr(viewPath);
+<br/>        var template = new Shotenjin.Template();
+<br/>        template.convert(template_str);
+<br/>        //添加到缓存中
+<br/>        Shotenjin.templateCatch[viewPath] = template;
+<br/>    }
+<br/>    var output = template.render(context);
+<br/>    return output;
+<br/>};
+<br/>global.Shotenjin = Shotenjin;</pre>
+<br/></div>
+<br/>增加的代码主要是读取模板的内容，并解析模板中类似 {# …/layout.html #}  的标签，递归读取所有的模板内容，然后调用jstenjin的方法来解析模板。  这里读取文件内容使用的是fs.readFileSync，这是同步阻塞读取文件内容的，和我们平时使用的大多编程语言一样，而fs.readFile的非阻塞异步读。  这里的shotenjin.js原来是给客户端web浏览器javascript解析模板用的，现在拿到node.js来用，完全不用修改就正常工作。Google  V8真威武。  现在基本的东西都完成了，但是对于静态文件，例如js、css等我们需要一个静态文件服务器：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>var staticFileServer = function(req, res, filePath){
+<br/>    if(!filePath){
+<br/>        filePath = path.join(__dirname, config.staticFileDir, url.parse(req.url).pathname);
+<br/>    }
+<br/>    path.exists(filePath, function(exists) {
+<br/>        if(!exists) {
+<br/>            handler404(req, res);
+<br/>            return;
+<br/>        }
+<br/>        fs.readFile(filePath, “binary”, function(err, file) {
+<br/>            if(err) {
+<br/>                handler500(req, res, err);
+<br/>                return;
+<br/>            }
+<br/>            var ext = path.extname(filePath);
+<br/>            ext = ext ? ext.slice(1) : ‘html’;
+<br/>            res.writeHead(200, {‘Content-Type’: contentTypes[ext] || ‘text/html’});
+<br/>            res.write(file, “binary”);
+<br/>            res.end();
+<br/>        });
+<br/>    });
+<br/>};
+<br/>var contentTypes = {
+<br/>  “aiff”: “audio/x-aiff”,
+<br/>  “arj”: “application/x-arj-compressed”
+<br/>  //省略
+<br/>}</pre>
+<br/></div>
+<br/>简单来说就是读取文件内容并写入到response中返回给客户端。  现在该有的都有了，我们写一个action：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>// ./controllers/blog.js
+<br/>exports.index = function(){
+<br/>    this.render(‘blog/index.html’, {msg:‘Hello World’});
+<br/>};</pre>
+<br/></div>
+<br/>blog/index.html的内容为：
+<br/><div>
+<br/><pre escaped=“true” lang=“html”>{# …/…/header.html #}
+<br/>        <h3 class=“title”>n2Mvc Demo</h3>
+<br/>        <h1>#{msg}</h1>
+<br/>{# …/…/footer.html #}</pre>
+<br/></div>
+<br/>接着，就是写一个脚本来启动我们的n2Mvc了：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>// run.js
+<br/>var n2MvcServer = require(’./server’);
+<br/>n2MvcServer.runServer();</pre>
+<br/></div>
+<br/>ok，运行我们的启动脚本：  在浏览器访问看看：
+<br/><a href=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206139541.jpg”><img src=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206143053.jpg” border=“0” alt=“clip_image006[7]” width=“512” height=“349” /></a>
+<br/>
+<br/>嗯嗯，一切正常。  好，接下来我们再写一个获取新浪微博最新微博的页面。首先，我们在config.js中增加一个route配置：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>route.map({
+<br/>    method:‘get’,
+<br/>    url: //tweets/?$/i,
+<br/>    controller: ‘blog’,
+<br/>    action: ‘tweets’
+<br/>});</pre>
+<br/></div>
+<br/>然后开始写我们的cnotroller action：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>var http = require(‘http’),
+<br/>    events = require(“events”);
+<br/>var tsina_client = http.createClient(80, “api.t.sina.com.cn”);
+<br/>var tweets_emitter = new events.EventEmitter();
+<br/>// action: tweets
+<br/>exports.tweets = function(blogType){
+<br/>    var _t = this;
+<br/>    var listener = tweets_emitter.once(“tweets”, function(tweets) {
+<br/>        _t.render(‘blog/tweets.html’, {tweets: tweets});
+<br/>    });
+<br/>    get_tweets();
+<br/>};
+<br/>function get_tweets() {
+<br/>    var request = tsina_client.request(“GET”, “/statuses/public_timeline.json?source=3243248798”, {“host”: “api.t.sina.com.cn”});
+<br/>    request.addListener(“response”, function(response) {
+<br/>        var body = “”;
+<br/>        response.addListener(“data”, function(data) {
+<br/>            body += data;
+<br/>        });
+<br/>        response.addListener(“end”, function() {
+<br/>            var tweets = JSON.parse(body);
+<br/>            if(tweets.length > 0) {
+<br/>                console.log(‘get tweets \n’);
+<br/>                tweets_emitter.emit(“tweets”, tweets);
+<br/>            }
+<br/>        });
+<br/>    });
+<br/>    request.end();
+<br/>}</pre>
+<br/></div>
+<br/>这里使用http.createClient来发送请求获取新浪微博的最新微博，然后注册相应事件的监听。这里详细说下node的事件系统：EventEmitter。  EventEmitter可以通过require(‘events’). EventEmitter来访问，创建一个  EventEmitter的实例emitter后，就可以通过这个emitter来注册、删除、发出事件了。  例如上面的代码中，先创建来一个EventEmitter的实例：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>var tweets_emitter = new events.EventEmitter();</pre>
+<br/></div>
+<br/>然后用once注册一个一次性的事件监听：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>    var listener = tweets_emitter.once(“tweets”, function(tweets) {
+<br/>        _t.render(‘blog/tweets_data.html’, {tweets: tweets});
+<br/>    });</pre>
+<br/></div>
+<br/>once注册的事件在事件被触发一次后，就会自动移除。  最后，通过emit来发出事件：
+<br/><div>
+<br/><pre escaped=“true” lang=“JavaScript”>tweets_emitter.emit(“tweets”, tweets);</pre>
+<br/></div>
+<br/>这样，整个事件的流程都清晰了。  下面写一下显示tweets的模板：
+<br/><div>
+<br/><pre escaped=“true” lang=“html”><ul>
+<br/>  <?js for(var i in tweets){ ?>
+<br/>  <?js var tweet = tweets[i], user = tweets[i].user; ?>
+<br/>    <li>
+<br/>        <div class=“usericon”>
+<br/>                <a class=“user_head” href="###">
+<br/>                    <img src="#{user.profile_image_url}" />
+<br/>                </a>
+<br/>        </div>
+<br/>        <div class=“mainContent”>
+<br/>            <div class=“userName”>
+<br/>                <a href="###">
+<br/>                    #{user.screen_name}
+<br/>                </a>
+<br/>            </div>
+<br/>            <div class=“msg”>
+<br/>                <div class=“tweet”>
+<br/>                    <div class=“tweet_text”>
+<br/>                        #{tweet.text}
+<br/>                    </div>
+<br/>                    <?js if(tweet.thumbnail_pic){ ?>
+<br/>                    <div>
+<br/>                        <a target="_blank" href=“javascript:void(0);” class=“thumbnail_pic” >
+<br/>                            <img class=“pic” src="#{tweet.thumbnail_pic}" />
+<br/>                        </a>
+<br/>                    </div>
+<br/>                    <?js } ?>
+<br/>                </div>
+<br/>            </div>
+<br/>        </div>
+<br/>        <br class=“clear” />
+<br/>    </li>
+<br/>  <?js } ?>
+<br/></ul></pre>
+<br/></div>
+<br/><div>万事大吉，运行并访问：</div>
+<br/><div><a href=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206157886.jpg”><img src=“http://images.cnblogs.com/cnblogs_com/QLeelulu/201101/201101280206178924.jpg” border=“0” alt=“clip_image008[6]” width=“380” height=“397” /></a></div>
+<br/><h3>附一个简单的和Django的对比测试</h3>
+<br/><img src=“http://pic002.cnblogs.com/images/2011/26621/2011012811490365.png” alt="" />
+<br/><h3>后记</h3>
+<br/>本文写的mvc框架完全是为了尝试node.js，其实node已经有很多的 <a href=“http://github.com/ry/node/wiki/modules” target="_blank">Modules</a>可以用，也有比较成熟的web框架<a href=“http://github.com/visionmedia/express/tree/master” target="_blank">Express</a>。如果你要实现一个模块之前，可以先到node的modules页面查找下有没有你需要的模块先。  本文示例源代码：<a href=“http://files.cnblogs.com/QLeelulu/learnNode.zip”>learnNode.zip</a>
+<br/><h3>一些资源：</h3>
+<br/></div>
+<br/><div>node.js的文档：<a href=“http://nodejs.org/api.html”>http://nodejs.org/api.html</a></div>
+<br/><div>How To Node:  <a href=“http://howtonode.org/”>http://howtonode.org</a></div>
+<br/><div>learning-serverside-javascript-with-node-js: <a href=“http://net.tutsplus.com/tutorials/javascript-ajax/learning-serverside-javascript-with-node-js/”>http://net.tutsplus.com/tutorials/javascript-ajax/learning-serverside-javascript-with-node-js/</a> (中文翻译版：<a href=“http://www.osseye.com/?p=456”>http://www.osseye.com/?p=456</a> )</div>
+</body>
+</html>
